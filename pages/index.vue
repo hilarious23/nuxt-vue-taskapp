@@ -1,12 +1,13 @@
-
 <template lang="pug">
-  div
+  div タスク一覧
+    h2 
     input(type="text" v-model="filteredWord")
     ul
       li(v-for="task in filteredTaskList" v-bind:key="task.id")
+        //- task.doneがtrueならcheckedになる
+        input(type="checkbox" v-bind:checked="task.done")
         p {{ task.name }}
         p {{ task.done }}
-        p {{ task.labels }}
 </template>
 
 <script>
@@ -20,7 +21,8 @@ export default {
   },
   computed: {
     tasks() {
-      return task
+      // storeのstateを読む
+      return this.$store.state.tasks
     },
     filteredTaskList() {
       const filtered = this.tasks.filter(task => {
