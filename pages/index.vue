@@ -1,7 +1,8 @@
 <template lang="pug">
+  //- 子から親にデータをアクセスするときにVuexいる。Propsで子から親にデータ返すの大変
   div
     h2 タスク一覧 
-    input(type="text" v-model="filteredWord")
+    input(type="text" v-model="filteredWord" placeholder="search")
     ul
       li(v-for="task in filteredTaskList" v-bind:key="task.id")
         //- task.doneがtrueならcheckedになる
@@ -96,8 +97,12 @@ export default {
 
     // liのtaskの中の更にtask.labelIdsをforループ
     getLabelText(id) {
-      // toKOMAKI
+      // labelはlabelsの１つのオブジェクト
+      // 一個一個オブジェクト取り出して、label.id === idを満たすlabelを探す。
+      // labelはArray。その先頭を取ってくる
       const label = this.labels.filter(label => label.id === id)[0]
+      // console.log(label)
+      // フィルタかけた結果labelが空のとき''を返すようにしている。
       return label ? label.text : ''
     },
 
