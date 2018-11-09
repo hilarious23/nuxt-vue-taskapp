@@ -2,9 +2,10 @@
   //- 子から親にデータをアクセスするときにVuexいる。Propsで子から親にデータ返すの大変
   div
     h2 タスク一覧 
-    input(type="text" v-model="filteredWord" placeholder="search")
+    form(v-on:submit.prevent="search(searchWord)")
+      input(type="text" v-model="searchWord" placeholder="search")
     ul
-      li(v-for="task in filteredTaskList" v-bind:key="task.id")
+      li(v-for="task in tasks" v-bind:key="task.id")
         //- task.doneがtrueならcheckedになる
         input(type="checkbox" v-bind:checked="task.done"
           v-on:change="toggleTaskStatus(task)")
@@ -35,15 +36,17 @@
         input(type="radio" v-bind:checked="filter === null"
           v-on:change="changeFilter(null)")
         span フィルタしない
+
+    h2 保存と復元
+    button(type="button" v-on:click="save") 保存
+    button(type="button" v-on:click="restore") 復元
 </template>
 
 <script>
-import task from '~/assets/data/task.json'
-
 export default {
   data() {
     return {
-      filteredWord: '',
+      searchWord: null,
       newTaskName: '',
       newTaskLabelIds: [],
       newLabelText: ''
@@ -56,10 +59,16 @@ export default {
       return this.$store.getters.filteredTasks
     },
     filteredTaskList() {
-      const filtered = this.tasks.filter(task => {
-        return task.name.includes(this.filteredWord)
-      })
-      return filtered
+      return this.$store.getters.filteredTaskList
+    //   this.$store.getters.filteredTaskList({
+    //     filteredWord: this.searchWord
+    //   })
+    //   this.searchWord = ''
+      // console.log(this.tasks)
+      // const filtered = this.tasks.filter(task => {
+      //   return task.name.includes(this.filteredWord)
+      // })
+      // return filtered
     },
     // getLabelTextで使う用にstate.labelsを取得
     labels () {
@@ -70,6 +79,12 @@ export default {
     }
   },
   methods: {
+    search(searchWord) {
+      this.$store.commit('setSearchWord', {
+        searchWord: searchWord
+      })
+      // this.filteredTaskList = this.$store.getters.filteredTaskList
+    },
     addTask() {
       // stateの更新なのでmutation→なのでcommit
       // addTaskmutationにわたすべきものは渡す
@@ -111,6 +126,15 @@ export default {
       this.$store.commit('changeFilter', {
         filter: labelId
       })
+    },
+
+    // 現在の状態を保存する
+    save() {
+      this.$store.dispatch('save')
+    },
+
+    restore() {
+      this.$store.dispatch('restore')
     }
   }
 }

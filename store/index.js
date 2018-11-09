@@ -35,26 +35,59 @@ export const state = () => ({
   nextTaskId: 3,
   nextLabelId: 4,
   // フィルタするラベルのID初期値
-  filter: null
+  filter: null,
+  searchWord: null
 })
 
 // gettersはstateから計算した値を返す処理
 export const getters = {
   filteredTasks (state) {
     // labelが選択されていなければそのままの一覧を返す
-    if (!state.filter) {
+    if (!state.filter && !state.searchWord) {
       return state.tasks
     }
 
+    if (!!state.filter && !state.searchWord) {
     // 選択されたlabelでフィルタリングする
     // 各taskでtask.labelIdsにstate.filterがあるか検索
     // あれば最初に見つかった位置のindexが返ってくる（つまりあるなら0以上)
     // task.labelIds.indexOf(state.filter)が0以上になるtaskかを判断
     // 条件を満たすstate.tasksをreturn
-    return state.tasks.filter(task => {
-      return task.labelIds.indexOf(state.filter) >= 0
-    })
-  }
+      return state.tasks.filter(task => {
+        return task.labelIds.indexOf(state.filter) >= 0
+    })    
+    }
+
+    if (!state.filter && !!state.searchWord) {
+      return state.tasks.filter(task => {
+        return task.name.includes(state.searchWord)
+      })
+    }
+
+    if (!!state.filter && !!state.searchWord) {
+      const filtered = state.tasks.filter(task => {
+        return task.labelIds.indexOf(state.filter) >= 0
+      })
+      return filtered.filter(task => {
+        return task.name.includes(state.searchWord)
+      })
+    }
+    // return state.tasks.filter(task => {
+    //   return task.labelIds.indexOf(state.filter) >= 0 && task.name.includes(state.searchWord)
+    // })
+  },
+
+  // filteredTaskList (state) {
+  //   if (!state.searchWord) {
+  //     return state.tasks
+  //   }
+  //   console.log(state.searchWord)
+  //   const filtered = state.tasks.filter(task => {
+  //     return task.name.includes(state.searchWord)
+  //   })[0]
+  //   console.log(filtered)
+  //   return filtered
+  // }
 } 
 
 // mutationsはstateの更新
@@ -98,5 +131,40 @@ export const mutations = {
   // フィルタリング対象のラベルを変更する
   changeFilter (state, { filter }) {
     state.filter = filter
+  },
+
+  setSearchWord(state, { searchWord }) {
+    state.searchWord = searchWord
+  },
+
+  // stateを復元する
+  restore (state, { tasks, labels, nextTaskId, nextLabelId }) {
+    state.tasks = tasks
+    state.labels = labels
+    state.nextTaskId = nextTaskId
+    state.nextLabelId = nextLabelId
+  }
+}
+
+// 外を経てmutationを呼び出すactions
+export const actions = {
+  // localstorageにstateを保存する
+  save ({ state }) {
+    const data = {
+      tasks: state.tasks,
+      labels: state.labels,
+      nextTaskId: state.nextLabelId,
+      nextLabelId: state.nextLabelId
+    }
+    // localStorageには文字列しか保存できないのでJSON.stringifyで変換
+    localStorage.setItem('task-app-data', JSON.stringify(data))
+  },
+
+  restore ({ commit }) {
+    const data = localStorage.getItem('task-app-data')
+    if (data) {
+      // JSON.parseでオブジェクトに戻す
+      commit('restore', JSON.parse(data))
+    }
   }
 }
