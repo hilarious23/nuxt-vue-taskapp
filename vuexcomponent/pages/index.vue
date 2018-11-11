@@ -6,18 +6,17 @@
 
 <script>
 import { mapState, mapMutations } from 'vuex'
-
 export default {
-  // $store.state.countをthis.countに結びつける
+  // $store.state.countをthis.countに結びつける →'count'のみ
+  // $store.state.countをthis.valueに結びつける →value: 'count'
   computed: mapState([
-    'count'
+    value: 'count'
   ]),
   // computed: {
   //   count() {
   //     return this.$store.state.count
   //   }
   // },
-
   // $store.commit('increment', value)をthis.increment(value)で呼び出せるようにする
   methods: mapMutations([
     'increment'
@@ -29,4 +28,3 @@ export default {
   // }
 }
 </script>
-
