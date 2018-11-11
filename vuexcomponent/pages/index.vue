@@ -5,18 +5,28 @@
 </template>
 
 <script>
-export default {
-  computed: {
-    count() {
-      return this.$store.state.count
-    }
-  },
+import { mapState, mapMutations } from 'vuex'
 
-  methods: {
-    increment(value) {
-      this.$store.commit('increment', {value})
-    }
-  }
+export default {
+  // $store.state.countをthis.countに結びつける
+  computed: mapState([
+    'count'
+  ]),
+  // computed: {
+  //   count() {
+  //     return this.$store.state.count
+  //   }
+  // },
+
+  // $store.commit('increment', value)をthis.increment(value)で呼び出せるようにする
+  methods: mapMutations([
+    'increment'
+  ])
+// methods: {
+  //   increment(value) {
+  //     this.$store.commit('increment', {value})
+  //   }
+  // }
 }
 </script>
 
